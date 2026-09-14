@@ -13,6 +13,7 @@ public/assets/Others/*
 public/assets/*/*/ch_*
 public/assets/*/*/ex_*
 public/assets/*/*/tf_*
+public/assets/*/*/bc_*
 
 # Logs
 logs
