@@ -8,12 +8,11 @@ validate_log.py
 git.py
 images
 
-public/assets/*
-public/assets/Others
+public/assets/Others/*
 
-!public/assets/*/*/
-!public/assets/*/*/st_*
-!public/assets/*/*/chara_*
+public/assets/*/*/ch_*
+public/assets/*/*/ex_*
+public/assets/*/*/tf_*
 
 # Logs
 logs
