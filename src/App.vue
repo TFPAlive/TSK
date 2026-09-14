@@ -1,47 +1,42 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
+<script lang="ts" src="./App.ts"></script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <main class="viewer-shell">
+    <header class="toolbar">
+      <label class="selector" for="model-select">
+        <span>Character</span>
+        <select id="model-select" v-model="selectedPath">
+          <option v-for="model in formattedModels" :key="model.id" :value="model.path">
+            {{ model.label }}
+          </option>
+        </select>
+      </label>
+      <label v-if="animations.length" class="selector" for="animation-select">
+        <span>Animation</span>
+        <select id="animation-select" v-model="selectedAnimation" @change="changeAnimation(selectedAnimation)">
+          <option v-for="animation in animations" :key="animation" :value="animation">
+            {{ animation }}
+          </option>
+        </select>
+      </label>
+      <button class="reset-button" type="button" title="Reset canvas position and zoom" @click="resetView">
+        Reset view
+      </button>
+    </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
+    <section
+      ref="playerRoot"
+      class="player-root"
+      :class="{ dragging: isDragging }"
+      aria-live="polite"
+      aria-label="Spine character viewer"
+      @pointerdown="handlePointerDown"
+      @pointermove="handlePointerMove"
+      @pointerup="handlePointerUp"
+      @pointercancel="handlePointerUp"
+      @wheel="handleWheel"
+    />
   </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<style scoped src="./App.css"></style>

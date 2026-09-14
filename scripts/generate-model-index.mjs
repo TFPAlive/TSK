@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const demoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dataRoot = path.join(demoRoot, 'assets');
+const dataRoot = path.join(demoRoot, 'public', 'assets');
 const outputPath = path.join(dataRoot, 'model-index.json');
 
 async function findModelFiles(directory) {
@@ -17,7 +17,7 @@ async function findModelFiles(directory) {
 }
 
 const modelPaths = (await findModelFiles(dataRoot))
-  .map((filePath) => `/${path.relative(path.join(demoRoot, 'assets'), filePath).replaceAll(path.sep, '/')}`)
+  .map((filePath) => `/${path.relative(dataRoot, filePath).replaceAll(path.sep, '/')}`)
   .sort();
 
 await mkdir(path.dirname(outputPath), { recursive: true });

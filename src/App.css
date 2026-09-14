@@ -1,0 +1,113 @@
+:global(html, body, #app) {
+  margin: 0;
+  min-height: 100%;
+  height: 100%;
+  background: #020817;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.viewer-shell {
+  width: min(1200px, calc(100vw - 32px));
+  margin: 32px auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.8fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.selector {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.selector select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 1);
+  color: #f8fafc;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.reset-button {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  padding: 10px 14px;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.reset-button:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(51, 65, 85, 0.95);
+}
+
+.player-root {
+  min-height: 760px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  background: radial-gradient(circle at top, rgba(30, 41, 59, 0.9), rgba(2, 6, 23, 1));
+}
+
+.player-root.dragging {
+  cursor: grabbing;
+}
+
+.player-root canvas {
+  max-width: 100%;
+  height: auto;
+  will-change: transform;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .selector {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .selector select {
+    width: 100%;
+  }
+
+  .status-pill {
+    max-width: none;
+    width: 100%;
+  }
+
+  .reset-button {
+    width: 100%;
+  }
+}
