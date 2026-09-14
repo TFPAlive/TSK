@@ -6,8 +6,14 @@ ICO.py
 sort.py
 validate_log.py
 git.py
-assets
 images
+
+public/assets/*
+public/assets/Others
+
+!public/assets/*/*/
+!public/assets/*/*/st_*
+!public/assets/*/*/chara_*
 
 # Logs
 logs

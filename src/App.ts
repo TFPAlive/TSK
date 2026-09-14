@@ -1,5 +1,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import modelIndex from '../public/assets/model-index.json'
+import modelIndex from './assets/model-index.json'
+import characterIndex from './assets/character-index.json'
+import { SpinePlayer } from '@esotericsoftware/spine-player'
 
 type ModelOption = {
   id: string
@@ -11,10 +13,20 @@ type SpineAnimation = {
   name: string
 }
 
+type CharacterOption = {
+  id: string
+  icon: string
+  model: string | null
+  label: string
+}
+
 export default {
   setup() {
     const formattedModels = computed<ModelOption[]>(() => {
-  return modelIndex
+      const characterId = selectedCharacterId.value
+      if (!characterId) return []
+
+      return modelIndex
     .filter((entry): entry is string => typeof entry === 'string' && entry.endsWith('.skel.bytes'))
     .map((entry) => {
       const cleaned = entry.replace(/^\/+|\.skel\.bytes$/g, '')
@@ -27,10 +39,26 @@ export default {
         label: `${family} / ${fileName}`,
       }
     })
+    .filter((model) => {
+      const fileName = model.path.split('/').at(-1) ?? ''
+      return new RegExp(`^(?:st)_${characterId}(?:_|\\.)`).test(fileName)
+    })
     .sort((a, b) => a.label.localeCompare(b.label, 'en', { sensitivity: 'base' }))
-  })
+    })
+
+    const characters = computed<CharacterOption[]>(() => characterIndex as CharacterOption[])
+    const characterSearch = ref('')
+    const filteredCharacters = computed(() => {
+      const query = characterSearch.value.trim().toLocaleLowerCase()
+      if (!query) return characters.value
+
+      return characters.value.filter((character) =>
+        `${character.label} ${character.id}`.toLocaleLowerCase().includes(query),
+      )
+    })
 
 const status = ref('Loading model list…')
+const selectedCharacterId = ref('')
 const selectedPath = ref('')
 const animations = ref<string[]>([])
 const skins = ref<string[]>([])
@@ -42,6 +70,7 @@ const zoom = ref(1)
 const panX = ref(0)
 const panY = ref(0)
 const isDragging = ref(false)
+const showCharacterList = ref(true)
 
 function getPlayerCanvas() {
   return playerRoot.value?.querySelector('canvas') ?? null
@@ -49,8 +78,13 @@ function getPlayerCanvas() {
 
 function applyCanvasTransform() {
   const canvas = getPlayerCanvas()
+  const size = '1500px'
   if (!canvas) return
 
+  canvas.style.setProperty('width', '3840px', 'important')
+  canvas.style.setProperty('height', '2160px', 'important')
+  canvas.style.maxWidth = 'none'
+  canvas.style.maxHeight = 'none'
   canvas.style.transform = `translate(${panX.value}px, ${panY.value}px) scale(${zoom.value})`
   canvas.style.transformOrigin = 'center center'
 }
@@ -146,12 +180,6 @@ async function ensureAssetAvailable(url: string) {
 async function loadModel(path: string, requestedAnimation = '', requestedSkin = '') {
   if (!path || !playerRoot.value) return
 
-  const spine = (window as any).spine
-  if (!spine || !spine.SpinePlayer) {
-    status.value = 'Spine library is not loaded'
-    return
-  }
-
   const binaryUrl = path.startsWith('/') ? path : `/${path}`
   const atlasUrl = resolveAtlasUrl(binaryUrl)
 
@@ -162,12 +190,11 @@ async function loadModel(path: string, requestedAnimation = '', requestedSkin = 
 
     cleanPlayer()
 
-    const player = new spine.SpinePlayer(playerRoot.value, {
+    const player = new SpinePlayer(playerRoot.value, {
       binaryUrl,
       atlasUrl,
       premultipliedAlpha: false,
       showControls: false,
-      scale: 1,
       skin: requestedSkin ,
       animation: requestedAnimation,
       success: (loadedPlayer: any) => {
@@ -211,15 +238,11 @@ async function loadModel(path: string, requestedAnimation = '', requestedSkin = 
   }
 }
 
-watch(
-  formattedModels,
-  (models) => {
-    if (!selectedPath.value && models[0]) {
-      selectedPath.value = models[0].path
-    }
-  },
-  { immediate: true },
-)
+watch(formattedModels, (models) => {
+  if (models.length && !models.some((model) => model.path === selectedPath.value)) {
+    selectedPath.value = models.find((model) => model.path.includes(`/st_${selectedCharacterId.value}.`))?.path ?? models[0]!.path
+  }
+})
 
 watch(selectedPath, (path) => {
   if (path) {
@@ -233,14 +256,19 @@ function changeAnimation(animation: string) {
   }
 }
 
+function selectCharacter(character: CharacterOption) {
+  if (!character.model) return
+
+  selectedCharacterId.value = character.id
+  selectedPath.value = character.model
+  showCharacterList.value = false
+  resetView()
+}
+
 
 
 onMounted(() => {
   window.addEventListener('keydown', handleFullscreen)
-
-  if (!selectedPath.value && formattedModels.value[0]) {
-    selectedPath.value = formattedModels.value[0].path
-  }
 })
 
     onBeforeUnmount(() => {
@@ -250,7 +278,10 @@ onMounted(() => {
 
     return {
       animations,
+      characters,
+      characterSearch,
       changeAnimation,
+      filteredCharacters,
       formattedModels,
       handlePointerDown,
       handlePointerMove,
@@ -259,8 +290,11 @@ onMounted(() => {
       isDragging,
       playerRoot,
       resetView,
+      selectCharacter,
+      selectedCharacterId,
       selectedAnimation,
       selectedPath,
+      showCharacterList,
       status,
       zoom,
     }
