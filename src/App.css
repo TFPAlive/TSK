@@ -180,10 +180,10 @@
 }
 
 .character-grid {
-  width: min(1200px, 100%);
+  width: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(9.3%, auto));
   gap: 12px;
 }
 

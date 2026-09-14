@@ -82,7 +82,7 @@
             @click="selectCharacter(character)"
           >
             <img :src="`/assets${character.icon}`" :alt="character.label" loading="lazy">
-            <span>{{ character.label }}</span>
+            <span>{{ character.label.slice(7) }}</span>
           </button>
         </div>
         <p v-if="!filteredCharacters.length" class="empty-character-state">No characters found.</p>
